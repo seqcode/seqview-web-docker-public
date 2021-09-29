@@ -1,0 +1,6 @@
+FROM nginx:1.20.0-perl
+
+#FROM nginx:1.17
+
+# Run as ngnxban user
+RUN usermod -u 3834285 -o nginx && groupmod -g 3834285 -o nginx

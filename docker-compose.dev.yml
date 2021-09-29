@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  seqview:
+    build: .
+    command: bash /entrypoints/entrypoint.dev.sh 
+    volumes:
+      - ./entrypoints:/entrypoints
+      - ./src/genome-browser:/usr/src/seqview/
+      - ./src/genome-browser-client:/usr/src/seqview/frontend/src/
+      - ./static:/usr/src/seqview/static/
+    environment:
+      - "DEBUG=${DEBUG}"
+      - "HOST=${HOST}"
+      - "SECRET_KEY=${SECRET_KEY}"
+      - "DJANGO_PWORD=${DJANGO_PWORD}"
+      - "DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}"
+      - "DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}"
+    expose:
+      - 80
+      - 8000
+    networks:
+      - main
+    depends_on:
+      - db
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    volumes:
+#      - ./nginx_logs:/var/log/nginx/
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+      - /tmp/krb5cc_ngnxban:/tmp/krb5cc_ngnxban:ro
+      - ./static:/usr/share/nginx/html/static
+      - ./resources:/usr/share/nginx/html/resources
+      - /usr/share/nginx/html/seqalignments:/usr/share/nginx/html/seqalignments
+      - /usr/share/nginx/html/seqalignments:/usr/share/nginx/html/tracks
+    ports:
+      - "80:80"
+    depends_on:
+      - seqview
+    networks:
+      - main
+networks:
+  main:

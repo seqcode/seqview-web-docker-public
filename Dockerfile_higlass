@@ -1,0 +1,5 @@
+FROM higlass/higlass-docker:0.7.3
+
+RUN groupadd -r -g 3863591 higbanb 
+RUN useradd -r -u 3863591 -g higbanb higbanb
+COPY ./supervisord.conf /home/higlass/projects/

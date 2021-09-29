@@ -1,0 +1,11 @@
+FROM centos:7
+
+
+#RUN yum -y update && yum -y install perl & yum -y install epel-release & yum -y install spawn-fcgi & yum -y install fcgiwrap
+RUN yum -y update && yum -y install perl && yum -y install epel-release && yum -y install spawn-fcgi && yum -y install fcgiwrap
+
+RUN yum -y install perl-CPAN && yum -y install perl-CGI && yum -y install perl-URI && yum -y install perl-DBI && yum -y install perl-DBD-MySQL
+
+CMD ["spawn-fcgi", "-n", "-u", "3834285", "-p", "9001", "-P", "/var/run/spawn-fcgi.pid", "--", "/usr/sbin/fcgiwrap", "-f"]
+
+

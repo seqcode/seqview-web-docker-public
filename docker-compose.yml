@@ -1,0 +1,89 @@
+version: '3.7'
+
+services:
+  seqview:
+    build: .
+    command: bash /entrypoints/entrypoint.sh 
+    volumes:
+      - ./src/genome-browser:/usr/src/seqview/
+      - ./entrypoints:/entrypoints
+      - ./static:/usr/src/seqview/static/
+    environment:
+      - "DEBUG=${DEBUG}"
+      - "HOST=${HOST}"
+      - "SECRET_KEY=${SECRET_KEY}"
+      - "DJANGO_PWORD=${DJANGO_PWORD}"
+      - "DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}"
+      - "DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}"
+    expose:
+      - 8000
+    networks:
+      - main
+    depends_on:
+      - db
+    container_name: seqview
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile_mysql
+    environment:
+      - "DJANGO_HOST=${DJANGO_HOST}"
+      - "DJANGO_USER=${DJANGO_USER}"
+      - "DJANGO_PWORD=${DJANGO_PWORD}"
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+    volumes:
+      - ./schemas:/docker-entrypoint-initdb.d/:ro      
+    networks:
+      - main
+    container_name: db
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./fastcgi_params:/etc/nginx/fastcgi_params
+      - ./static:/usr/share/nginx/html/static
+      - ./resources:/usr/share/nginx/html/resources
+      - ./src/upload:/usr/share/nginx/html/scripts
+    ports:
+      - "8000:80"
+    depends_on:
+      - seqview
+    networks:
+      - main
+    container_name: nginx
+  higlass:
+    build:
+      context: .
+      dockerfile: Dockerfile_higlass
+    devices:
+      - "/dev/fuse:/dev/fuse"
+    cap_add:
+      - SYS_ADMIN
+    command: bash /mysql-entrypoints/higlass-entrypoint.sh
+    volumes:
+      - ./src/higlassWrapper:/usr/src/higlassWrapper
+      - ./entrypoints:/mysql-entrypoints
+      - ./hg-data:/data
+      - ./hg-tmp:/tmp
+    expose:
+      - 80
+    ports:
+      - "9000:9000"
+    networks:
+      - main
+    container_name: higlass
+  fcgiwrap:
+    build:
+      context: .
+      dockerfile: Dockerfile_fcgiwrap
+    volumes:
+      - ./src/upload:/usr/share/nginx/html/scripts
+    expose: 
+      - 9001
+    networks:
+      - main
+    container_name: fcgiwrap
+networks:
+  main:

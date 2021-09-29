@@ -1,0 +1,15 @@
+certifi==2019.11.28
+chardet==3.0.4
+Django==2.2.6
+django-cors-headers==3.2.1
+djangorestframework==3.10.3
+djangorestframework-simplejwt==4.3.0
+gunicorn==19.9.0
+idna==2.8
+mysqlclient==1.4.4
+PyJWT==1.7.1
+pytz==2019.2
+requests==2.22.0
+slugid==2.0.0
+sqlparse==0.3.0
+urllib3==1.25.7
