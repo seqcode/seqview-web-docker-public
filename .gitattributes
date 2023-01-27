@@ -1,1 +1,2 @@
 *.cgi linguist-detectable=false
+src/upload/seqdata_query linguist-detectable=false
